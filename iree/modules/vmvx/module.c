@@ -101,6 +101,23 @@ IREE_VM_ABI_EXPORT(iree_vmvx_module_placeholder,  //
   return iree_ok_status();
 }
 
+IREE_VM_ABI_EXPORT(iree_vmvx_module_myaddi32,       //
+                   iree_vmvx_module_state_t,      //
+                   ii, i) {
+  printf("invoked myaddi32\n");
+  rets->i0 = args->i0 + args->i1;                       
+  return iree_ok_status();
+}
+
+IREE_VM_ABI_EXPORT(iree_vmvx_module_myaddi64,       //
+                   iree_vmvx_module_state_t,      //
+                   ii, i) {
+  printf("invoked myaddi64\n");
+  rets->i0 = args->i0 + args->i1;                       
+  return iree_ok_status();
+}
+
+
 //===----------------------------------------------------------------------===//
 // VM module interface implementation
 //===----------------------------------------------------------------------===//

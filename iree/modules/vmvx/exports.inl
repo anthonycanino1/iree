@@ -24,5 +24,7 @@
 // clang-format off
 
 EXPORT_FN("_placeholder", iree_vmvx_module_placeholder, v, v)
+EXPORT_FN("myaddi32", iree_vmvx_module_myaddi32, ii, i)
+EXPORT_FN("myaddi64", iree_vmvx_module_myaddi64, ii, i)
 
 // clang-format on

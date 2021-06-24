@@ -58,6 +58,7 @@ class ConversionPass
     ConversionTarget conversionTarget(*context);
     conversionTarget.addIllegalDialect<IREE::HAL::HALDialect>();
     conversionTarget.addIllegalDialect<tensor::TensorDialect>();
+    conversionTarget.addIllegalOp<mlir::AddIOp>();
     conversionTarget.addLegalDialect<IREEDialect>();
     conversionTarget.addLegalDialect<IREE::VMVX::VMVXDialect>();
     conversionTarget.addLegalDialect<mlir::StandardOpsDialect>();

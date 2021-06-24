@@ -14,6 +14,33 @@ include "mlir/Interfaces/SideEffectInterfaces.td"
 class VMVX_PureOp<string mnemonic, list<OpTrait> traits = []> :
     VMVX_Op<mnemonic, !listconcat(traits, [NoSideEffect])>;
 
+def VMVX_AddI32Op : VMVX_PureOp<"add.i32", [Commutative]> {
+  let arguments = (ins
+    I32:$lhs,
+    I32:$rhs
+  );
+
+  let results = (outs
+    I32:$result
+  );
+
+  let assemblyFormat = "operands attr-dict `:` type($result)";
+}
+
+def VMVX_AddI64Op : VMVX_PureOp<"add.i64", [Commutative]> {
+  let arguments = (ins
+    I64:$lhs,
+    I64:$rhs
+  );
+
+  let results = (outs
+    I64:$result
+  );
+
+  let assemblyFormat = "operands attr-dict `:` type($result)";
+}
+
+
 //===----------------------------------------------------------------------===//
 // VMVX Ops: ABI
 //===----------------------------------------------------------------------===//

@@ -29,4 +29,8 @@ vm.module @vmvx {
 // VMVX Ops: TODO
 //===----------------------------------------------------------------------===//
 
+vm.import @myaddi32(%lh : i32, %rh : i32) -> i32
+
+vm.import @myaddi64(%lh : i64, %rh : i64) -> i64
+
 }  // module

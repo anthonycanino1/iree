@@ -117,7 +117,10 @@ class VMVXImportOpConversion : public OpConversionPattern<T> {
 void populateVMVXToVMPatterns(MLIRContext *context,
                               TypeConverter &typeConverter,
                               SymbolTable &importSymbols,
-                              OwningRewritePatternList &patterns) {}
+                              OwningRewritePatternList &patterns) {
+  VMVX_IMPORT_OP(IREE::VMVX::AddI32Op, "vmvx.myaddi32");
+  VMVX_IMPORT_OP(IREE::VMVX::AddI64Op, "vmvx.myaddi64");
+}
 
 }  // namespace iree_compiler
 }  // namespace mlir

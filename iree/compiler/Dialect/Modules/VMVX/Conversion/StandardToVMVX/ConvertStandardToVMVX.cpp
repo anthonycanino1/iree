@@ -62,6 +62,30 @@ struct RemoveIdentityConversionCast final
   }
 };
 
+struct InjectVMVXOp final : public OpConversionPattern<AddIOp> {
+  using OpConversionPattern::OpConversionPattern;
+  LogicalResult matchAndRewrite(
+      AddIOp op, ArrayRef<Value> operands,
+      ConversionPatternRewriter &rewriter) const override {
+    switch (op.lhs().getType().getIntOrFloatBitWidth()) {
+      case 32:
+        rewriter.replaceOpWithNewOp<IREE::VMVX::AddI32Op, mlir::Type,
+                                    mlir::Value, mlir::Value>(
+            op, op.getResult().getType(), op.getOperand(0), op.getOperand(1));
+        break;
+      case 64:
+        rewriter.replaceOpWithNewOp<IREE::VMVX::AddI64Op, mlir::Type,
+                                    mlir::Value, mlir::Value>(
+            op, op.getResult().getType(), op.getOperand(0), op.getOperand(1));
+        break;
+      default:
+        return rewriter.notifyMatchFailure(op, "unsupported type");
+    }
+
+    return success();
+  }
+};
+
 }  // namespace
 
 void populateStandardToVMVXPatterns(MLIRContext *context,
@@ -72,6 +96,7 @@ void populateStandardToVMVXPatterns(MLIRContext *context,
   patterns.insert<FoldAsNoOp<linalg::ExpandShapeOp>>(typeConverter, context);
 
   patterns.insert<RemoveIdentityConversionCast>(typeConverter, context);
+  patterns.insert<InjectVMVXOp>(typeConverter, context);
 }
 
 }  // namespace iree_compiler

@@ -14,6 +14,51 @@ include "mlir/Interfaces/SideEffectInterfaces.td"
 class VMVX_PureOp<string mnemonic, list<OpTrait> traits = []> :
     VMVX_Op<mnemonic, !listconcat(traits, [NoSideEffect])>;
 
+def VMVX_AddSI32Op : 
+    VMVX_Op<"add.si32", [
+      MemoryEffects<[MemRead,MemWrite]>
+    ]> {
+  let arguments = (ins
+    VMVX_Buffer:$lhs_buffer,
+    VMVX_Index:$lhs_offset,
+    VMVX_Buffer:$rhs_buffer,
+    VMVX_Index:$rhs_offset,
+    VMVX_Buffer:$dst_buffer,
+    VMVX_Index:$dst_offset,
+    VMVX_Index:$length
+  );
+
+  let assemblyFormat = [{
+    `lhs` `(` $lhs_buffer `:` type($lhs_buffer) `)` `[` $lhs_offset `]`
+    `rhs` `(` $rhs_buffer `:` type($rhs_buffer) `)` `[` $rhs_offset `]`
+    `dst` `(` $dst_buffer `:` type($dst_buffer) `)` `[` $dst_offset `]`
+    `length` `(` $length `)` attr-dict
+  }];
+}
+
+def VMVX_AddSI64Op : 
+    VMVX_Op<"add.si64", [
+      MemoryEffects<[MemRead,MemWrite]>
+    ]> {
+  let arguments = (ins
+    VMVX_Buffer:$lhs_buffer,
+    VMVX_Index:$lhs_offset,
+    VMVX_Buffer:$rhs_buffer,
+    VMVX_Index:$rhs_offset,
+    VMVX_Buffer:$dst_buffer,
+    VMVX_Index:$dst_offset,
+    VMVX_Index:$length
+  );
+
+  let assemblyFormat = [{
+    `lhs` `(` $lhs_buffer `:` type($lhs_buffer) `)` `[` $lhs_offset `]`
+    `rhs` `(` $rhs_buffer `:` type($rhs_buffer) `)` `[` $rhs_offset `]`
+    `dst` `(` $dst_buffer `:` type($dst_buffer) `)` `[` $dst_offset `]`
+    `length` `(` $length `)` attr-dict
+  }];
+}
+
+
 def VMVX_AddI32Op : VMVX_PureOp<"add.i32", [Commutative]> {
   let arguments = (ins
     I32:$lhs,

@@ -351,6 +351,12 @@ std::unique_ptr<OperationPass<FuncOp>> createTestMHLOConvertComplexToRealPass();
 std::unique_ptr<OperationPass<FuncOp>>
 createTestLinalgToLLVMGPUScalarizeMathOpPass();
 
+//------------------------------------------------------------------------------
+// VMVX Hacking
+//------------------------------------------------------------------------------
+std::unique_ptr<OperationPass<FuncOp>> createLinalgToVectorTileAndVectorize();
+    
+
 }  // namespace iree_compiler
 }  // namespace mlir
 

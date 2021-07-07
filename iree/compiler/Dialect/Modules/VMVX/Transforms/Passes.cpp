@@ -26,6 +26,10 @@ namespace iree_compiler {
 namespace IREE {
 namespace VMVX {
 
+static llvm::cl::opt<bool> enableVectorVMVX(
+    "iree-enable-vector-vmvx",
+    llvm::cl::desc("enable experimental vector vmvx"));
+
 static void buildVectorVMVXTransformPassPipeline(OpPassManager &passManager) {
   // For now lower using the default CPU pass-pipeline which doesn't
   // vectorize. When VMVX can lower vector operations, this can be relaxed.
@@ -46,8 +50,10 @@ static void buildVectorVMVXTransformPassPipeline(OpPassManager &passManager) {
   nestedModulePM.addNestedPass<FuncOp>(createCanonicalizerPass());
   // TODO(#5925): This can also be modified to just use the dynamic pass
   // pipeline like the CPU side.
-  // nestedModulePM.addNestedPass<FuncOp>(
-  //     createLinalgTileAndVectorizeWorkgroupsPass());
+  if (enableVectorVMVX) {
+    nestedModulePM.addNestedPass<FuncOp>(
+        createLinalgToVectorTileAndVectorize());
+  }
 
   // Linalg -> SCF.
   nestedModulePM.addNestedPass<FuncOp>(createConvertLinalgToLoopsPass());

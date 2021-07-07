@@ -8,6 +8,7 @@
 #include "iree/compiler/Dialect/IREE/IR/IREEDialect.h"
 #include "iree/compiler/Dialect/Modules/VMVX/Conversion/HALToVMVX/ConvertHALToVMVX.h"
 #include "iree/compiler/Dialect/Modules/VMVX/Conversion/StandardToVMVX/ConvertStandardToVMVX.h"
+#include "iree/compiler/Dialect/Modules/VMVX/Conversion/VectorToVMVX/ConvertVectorToVMVX.h"
 #include "iree/compiler/Dialect/Modules/VMVX/IR/VMVXDialect.h"
 #include "iree/compiler/Dialect/Modules/VMVX/IR/VMVXTypes.h"
 #include "iree/compiler/Dialect/Modules/VMVX/Transforms/Passes.h"
@@ -18,6 +19,7 @@
 #include "mlir/Dialect/MemRef/IR/MemRef.h"
 #include "mlir/Dialect/StandardOps/IR/Ops.h"
 #include "mlir/Dialect/Tensor/IR/Tensor.h"
+#include "mlir/Dialect/Vector/VectorOps.h"
 #include "mlir/IR/BuiltinOps.h"
 #include "mlir/IR/PatternMatch.h"
 #include "mlir/Pass/Pass.h"
@@ -35,7 +37,8 @@ class ConversionPass
  public:
   void getDependentDialects(DialectRegistry &registry) const override {
     registry.insert<IREEDialect, IREE::HAL::HALDialect, IREE::VM::VMDialect,
-                    IREE::VMVX::VMVXDialect, memref::MemRefDialect>();
+                    IREE::VMVX::VMVXDialect, memref::MemRefDialect,
+                    mlir::vector::VectorDialect>();
   }
 
   void runOnOperation() override {
@@ -58,7 +61,6 @@ class ConversionPass
     ConversionTarget conversionTarget(*context);
     conversionTarget.addIllegalDialect<IREE::HAL::HALDialect>();
     conversionTarget.addIllegalDialect<tensor::TensorDialect>();
-    conversionTarget.addIllegalOp<mlir::AddIOp>();
     conversionTarget.addLegalDialect<IREEDialect>();
     conversionTarget.addLegalDialect<IREE::VMVX::VMVXDialect>();
     conversionTarget.addLegalDialect<mlir::StandardOpsDialect>();
@@ -66,8 +68,13 @@ class ConversionPass
     conversionTarget.addLegalDialect<memref::MemRefDialect>();
     conversionTarget.addLegalOp<mlir::UnrealizedConversionCastOp>();
 
+    conversionTarget.addDynamicallyLegalOp<mlir::AddIOp>([](mlir::AddIOp op) {
+      return !op.getType().isa<VectorType>();
+    });
+
     OwningRewritePatternList conversionPatterns(&getContext());
     populateHALToVMVXPatterns(context, conversionPatterns, typeConverter);
+    populateVectorToVMVXPatterns(context, conversionPatterns, typeConverter);
     populateStandardToVMVXPatterns(context, conversionPatterns, typeConverter);
 
     // Use the default 64-bit lowering for TOSA's ApplyScale operator:

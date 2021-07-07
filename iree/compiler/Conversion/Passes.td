@@ -292,4 +292,16 @@ def TestLinalgToLLVMGPUScalarizeMathOp :
   let constructor = "mlir::iree_compiler::createTestLinalgToLLVMGPUScalarizeMathOpPass()";
 }
 
+//------------------------------------------------------------------------------
+// Hacking for VMVX
+//------------------------------------------------------------------------------
+
+// TODO: Rename argument to be fully qualified.
+def LinalgToVectorTileAndVectorize :
+    Pass<"iree-tile-and-vectorize", "FuncOp"> {
+  let summary = "Tile and vectorize Linalg operations on buffers in one workgroup";
+  let constructor = "mlir::iree_compiler::createLinalgToVectorTileAndVectorize()";
+}
+
+
 #endif  // IREE_DIALECT_FLOW_PASSES

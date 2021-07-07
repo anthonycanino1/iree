@@ -30,6 +30,7 @@ cc_library(
         "//iree/compiler/Dialect/IREE/Transforms",
         "//iree/compiler/Dialect/Modules/VMVX/Conversion/HALToVMVX",
         "//iree/compiler/Dialect/Modules/VMVX/Conversion/StandardToVMVX",
+        "//iree/compiler/Dialect/Modules/VMVX/Conversion/VectorToVMVX",
         "//iree/compiler/Dialect/Modules/VMVX/IR",
         "//iree/compiler/Dialect/Modules/VMVX/IR:VMVXDialect",
         "//iree/compiler/Dialect/Shape/IR",

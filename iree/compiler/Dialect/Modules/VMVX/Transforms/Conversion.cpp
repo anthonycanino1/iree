@@ -8,6 +8,7 @@
 #include "iree/compiler/Dialect/IREE/IR/IREEDialect.h"
 #include "iree/compiler/Dialect/Modules/VMVX/Conversion/HALToVMVX/ConvertHALToVMVX.h"
 #include "iree/compiler/Dialect/Modules/VMVX/Conversion/StandardToVMVX/ConvertStandardToVMVX.h"
+#include "iree/compiler/Dialect/Modules/VMVX/Conversion/VectorToVMVX/ConvertVectorToVMVX.h"
 #include "iree/compiler/Dialect/Modules/VMVX/IR/VMVXDialect.h"
 #include "iree/compiler/Dialect/Modules/VMVX/IR/VMVXTypes.h"
 #include "iree/compiler/Dialect/Modules/VMVX/Transforms/Passes.h"
@@ -18,6 +19,7 @@
 #include "mlir/Dialect/MemRef/IR/MemRef.h"
 #include "mlir/Dialect/StandardOps/IR/Ops.h"
 #include "mlir/Dialect/Tensor/IR/Tensor.h"
+#include "mlir/Dialect/Vector/VectorOps.h"
 #include "mlir/IR/BuiltinOps.h"
 #include "mlir/IR/PatternMatch.h"
 #include "mlir/Pass/Pass.h"
@@ -35,7 +37,8 @@ class ConversionPass
  public:
   void getDependentDialects(DialectRegistry &registry) const override {
     registry.insert<IREEDialect, IREE::HAL::HALDialect, IREE::VM::VMDialect,
-                    IREE::VMVX::VMVXDialect, memref::MemRefDialect>();
+                    IREE::VMVX::VMVXDialect, memref::MemRefDialect,
+                    mlir::vector::VectorDialect>();
   }
 
   StringRef getArgument() const override { return "iree-vmvx-conversion"; }
@@ -55,6 +58,16 @@ class ConversionPass
     for (auto funcOp : getOperation().getOps<FuncOp>()) {
       if (funcOp.isPublic()) {
         if (failed(updateHALToVMVXEntryFuncOp(funcOp, typeConverter))) {
+          return signalPassFailure();
+        }
+      }
+    }
+
+    // TODO(anthonycanino1): Hacky prepass to get some conversion for testing.
+    // Needs to go away and replaced with actual principled conversion.
+    for (auto funcOp : getOperation().getOps<FuncOp>()) {
+      if (funcOp.isPublic()) {
+        if (failed(convertBinaryArithOps(funcOp))) {
           return signalPassFailure();
         }
       }

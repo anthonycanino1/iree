@@ -27,3 +27,5 @@ iree_cc_library(
 )
 
 ### BAZEL_TO_CMAKE_PRESERVES_ALL_CONTENT_BELOW_THIS_LINE ###
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx2")

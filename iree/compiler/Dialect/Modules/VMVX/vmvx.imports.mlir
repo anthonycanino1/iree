@@ -25,8 +25,19 @@
 // module must be prefixed with `ex.` like `vmvx.ex.my_test_op`.
 vm.module @vmvx {
 
-//===----------------------------------------------------------------------===//
-// VMVX Ops: TODO
-//===----------------------------------------------------------------------===//
+vm.import @addsi32(
+  %lhs_buffer : !vm.buffer, %lhs_offset : i32, 
+  %rhs_buffer : !vm.buffer, %rhs_offset : i32, 
+  %dst_buffer : !vm.buffer, %dst_offset : i32, 
+  %length : i32
+)
+
+vm.import @addsi64(
+  %lhs_buffer : !vm.buffer, %lhs_offset : i32, 
+  %rhs_buffer : !vm.buffer, %rhs_offset : i32, 
+  %dst_buffer : !vm.buffer, %dst_offset : i32, 
+  %length : i32
+)
+
 
 }  // module

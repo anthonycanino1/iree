@@ -25,4 +25,7 @@
 
 EXPORT_FN("_placeholder", iree_vmvx_module_placeholder, v, v)
 
+EXPORT_FN("addsi32", iree_vmvx_module_addsi32, riririi, v)
+EXPORT_FN("addsi64", iree_vmvx_module_addsi64, riririi, v)
+
 // clang-format on

@@ -11,9 +11,12 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <immintrin.h>
+
 #include "iree/base/api.h"
 #include "iree/base/tracing.h"
 #include "iree/vm/api.h"
+#include "iree/vm/buffer.h"
 
 //===----------------------------------------------------------------------===//
 // Type registration
@@ -101,6 +104,72 @@ IREE_VM_ABI_EXPORT(iree_vmvx_module_placeholder,  //
   return iree_ok_status();
 }
 
+
+#ifdef __AVX2__
+__m256i masks[8];
+#endif
+
+IREE_VM_ABI_EXPORT(iree_vmvx_module_addsi32,       
+                   iree_vmvx_module_state_t,       
+                   riririi, v) {
+  iree_vm_buffer_t *lhs_buffer = iree_vm_buffer_deref(args->r0);                     
+  int lhs_offset = args->i1;
+  if (IREE_UNLIKELY(!lhs_buffer)) {
+    return iree_make_status(IREE_STATUS_INVALID_ARGUMENT,
+                            "lhs_buffer is null");
+  }
+  iree_vm_buffer_t *rhs_buffer = iree_vm_buffer_deref(args->r2);                     
+  int rhs_offset = args->i3;
+  if (IREE_UNLIKELY(!lhs_buffer)) {
+    return iree_make_status(IREE_STATUS_INVALID_ARGUMENT,
+                            "rhs_buffer is null");
+  }
+  iree_vm_buffer_t *dst_buffer = iree_vm_buffer_deref(args->r4);
+  int dst_offset = args->i5;
+  if (IREE_UNLIKELY(!lhs_buffer)) {
+    return iree_make_status(IREE_STATUS_INVALID_ARGUMENT,
+                            "rhs_buffer is null");
+  }
+  int length = args->i6;
+  const int32_t *lhs = (int32_t*) lhs_buffer->data.data + lhs_offset;
+  const int32_t *rhs = (int32_t*) rhs_buffer->data.data + rhs_offset;
+  int32_t *dst = (int32_t*) dst_buffer->data.data + dst_offset;
+#ifdef __AVX2__
+  //printf("Running with avx2\n");
+  int iters = length / 8;
+  for (int i = 0; i < iters; i++) {
+    __m256i lhs_vec = _mm256_loadu_si256((const __m256i_u*) lhs);
+    __m256i rhs_vec = _mm256_loadu_si256((const __m256i_u*) rhs);
+    __m256i dst_vec = _mm256_add_epi32(lhs_vec, rhs_vec);
+    _mm256_storeu_si256((__m256i_u*) dst, dst_vec);
+    lhs += 8;
+    rhs += 8;
+    dst += 8;
+  }
+  int rem = length % 8;
+  if (rem) {
+    __m256i lhs_vec = _mm256_maskload_epi32(lhs, masks[rem]);
+    __m256i rhs_vec = _mm256_maskload_epi32(rhs, masks[rem]);
+    __m256i dst_vec = _mm256_add_epi32(lhs_vec, rhs_vec);
+    _mm256_maskstore_epi32(dst, masks[rem], dst_vec);
+  }
+#else
+  //printf("No avx2\n");
+  for (int i = 0; i < length; i++) {
+    dst[i] = lhs[i] + rhs[i];
+  }
+#endif
+  return iree_ok_status();
+}
+
+IREE_VM_ABI_EXPORT(iree_vmvx_module_addsi64,       
+                   iree_vmvx_module_state_t,       
+                   riririi, v) {
+  printf("invoked addsi64\n");
+  return iree_ok_status();
+}
+
+
 //===----------------------------------------------------------------------===//
 // VM module interface implementation
 //===----------------------------------------------------------------------===//
@@ -179,5 +248,17 @@ IREE_API_EXPORT iree_status_t iree_vmvx_module_create(
   module->host_allocator = allocator;
 
   *out_module = base_module;
+
+#ifdef __AVX2__
+  masks[0] = _mm256_setr_epi32(-1, -1, -1, -1, -1, -1, -1, -1);
+  masks[1] = _mm256_setr_epi32(-1, -1, -1, -1, -1, -1, -1, 0);
+  masks[2] = _mm256_setr_epi32(-1, -1, -1, -1, -1, -1, 0, 0);
+  masks[3] = _mm256_setr_epi32(-1, -1, -1, -1, -1, 0, 0, 0);
+  masks[4] = _mm256_setr_epi32(-1, -1, -1, -1, 0, 0, 0, 0);
+  masks[5] = _mm256_setr_epi32(-1, -1, -1, 0, 0, 0, 0, 0);
+  masks[6] = _mm256_setr_epi32(-1, -1, 0, 0, 0, 0, 0, 0);
+  masks[7] = _mm256_setr_epi32(-1, 0, 0, 0, 0, 0, 0, 0);
+#endif
+
   return iree_ok_status();
 }

@@ -366,6 +366,18 @@ IREE_VM_ABI_VLA_STRUCT(rriCiriiD, a3_count, a3, {
   iree_vm_abi_irii_t a3[0];
 });
 
+// VMVX
+IREE_VM_ABI_FIXED_STRUCT(riririi, {
+  iree_vm_ref_t r0;
+  int32_t i1;
+  iree_vm_ref_t r2;
+  int32_t i3;
+  iree_vm_ref_t r4;
+  int32_t i5;
+  int32_t i6;
+});
+
+
 #if defined(IREE_COMPILER_MSVC)
 #pragma pack(pop)
 #endif  // IREE_COMPILER_MSVC
@@ -415,5 +427,8 @@ IREE_VM_ABI_DECLARE_SHIM(rririi, v);
 IREE_VM_ABI_DECLARE_SHIM(v, i);
 IREE_VM_ABI_DECLARE_SHIM(v, r);
 IREE_VM_ABI_DECLARE_SHIM(v, v);
+
+// VMVX
+IREE_VM_ABI_DECLARE_SHIM(riririi, v);
 
 #endif  // IREE_VM_SHIMS_H_

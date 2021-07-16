@@ -310,6 +310,12 @@ void populateTileAndDistributeLinalgCopyPatterns(
 void populateFoldGPUProcessorIDUsesPatterns(MLIRContext *context,
                                             OwningRewritePatternList &patterns);
 
+//----------------------------------------------------------------------------//
+// VMVX Passes
+//----------------------------------------------------------------------------//
+
+std::unique_ptr<OperationPass<FuncOp>> createVMVXTileAndVectorize();
+
 //------------------------------------------------------------------------------
 // Test passes
 //------------------------------------------------------------------------------

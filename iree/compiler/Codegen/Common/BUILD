@@ -41,6 +41,7 @@ cc_library(
         "OptimizeVectorTransferPass.cpp",
         "SetNumWorkgroupsPass.cpp",
         "VectorizeConv.cpp",
+        "VMVXTileAndVectorize.cpp",
     ],
     deps = [
         "//iree/compiler/Codegen:PassHeaders",

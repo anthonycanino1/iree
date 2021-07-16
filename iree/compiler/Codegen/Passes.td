@@ -256,6 +256,15 @@ def SPIRVVectorToGPU :
 }
 
 //------------------------------------------------------------------------------
+// VMVX Passes
+//------------------------------------------------------------------------------
+def VMVXTileAndVectorize :
+    Pass<"iree-vmvx-tile-and-vectorize", "FuncOp"> {
+  let summary = "Tile and vectorize Linalg operations on buffers for VMVX";
+  let constructor = "mlir::iree_compiler::createVMVXTileAndVectorize()";
+}
+
+//------------------------------------------------------------------------------
 // Test passes
 //------------------------------------------------------------------------------
 
